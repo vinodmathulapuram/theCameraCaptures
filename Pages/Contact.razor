@@ -1,0 +1,105 @@
+@page "/contact"
+@using System.ComponentModel.DataAnnotations
+
+<PageTitle>Contact — The Camera Captures</PageTitle>
+<MetaTags Description="Get in touch with The Camera Captures about portraits, collaborations and photography projects." />
+
+<section class="page-hero contact-page-hero">
+    <p class="eyebrow"><span class="eyebrow-line"></span> LET'S TALK</p>
+    <h3>Have a good <em>feeling about us?</em></h3>
+    <p>A portrait session, a creative collaboration, or just a hello — I'd love to hear what you have in mind.</p>
+</section>
+
+<section class="contact-layout section">
+    <div class="contact-aside">
+        <p class="eyebrow">GET IN TOUCH</p>
+        <h2>Good things<br />start with <em>hello.</em></h2>
+        <p>Share a little about your idea and I'll get back to you.</p>
+        <div class="contact-detail"><span>INSTAGRAM</span><a href="https://www.instagram.com/thecamera.captures/" target="_blank" rel="noreferrer">@@thecamera.captures ↗</a></div>
+        <div class="contact-detail"><span>Email</span><a href="mailto:thecameracaptures@gmail.com" target="_blank" rel="noreferrer">thecamera.captures@gmail.com ↗</a></div>
+        <div class="contact-detail"><span>LOCATION</span><p>New Jersey · NYC and beyond</p></div>
+        <div class="contact-detail"><span>PROJECTS</span><p>Portraits · Events · Travel · Collaborations</p></div>
+    </div>
+
+    <div class="contact-form-wrap">
+        @if (submitted)
+        {
+            <div class="form-success" role="status">
+                <span class="success-icon">✓</span>
+                <h3>Thanks for reaching out.</h3>
+                <p>Your demo form validated successfully. To actually deliver messages, connect this form to an email service or your own ASP.NET Core API.</p>
+                <button class="text-link" @onclick="ResetForm">Send another message ↗</button>
+            </div>
+        }
+        else
+        {
+            <EditForm Model="model" OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <div class="form-field">
+                    <label for="name">YOUR NAME</label>
+                    <InputText id="name" @bind-Value="model.Name" placeholder="How should I call you?" />
+                    <ValidationMessage For="@(() => model.Name)" />
+                </div>
+                <div class="form-field">
+                    <label for="email">EMAIL ADDRESS</label>
+                    <InputText id="email" type="email" @bind-Value="model.Email" placeholder="you@example.com" />
+                    <ValidationMessage For="@(() => model.Email)" />
+                </div>
+                <div class="form-field">
+                    <label for="phone">PHONE NUMBER</label>
+                    <InputText id="phone" type="tel" @bind-Value="model.Phone" placeholder="(+1)(123) 456-7890" />
+                    <ValidationMessage For="@(() => model.Phone)" />
+                </div>
+                <div class="form-field">
+                    <label for="project">WHAT DO YOU HAVE IN MIND?</label>
+                    <InputSelect id="project" @bind-Value="model.ProjectType">
+                        <option value="">Choose a project type</option>
+                        <option>Portrait session</option>
+                        <option>Event photography</option>
+                        <option>Travel / editorial</option>
+                        <option>Creative collaboration</option>
+                        <option>Something else</option>
+                    </InputSelect>
+                </div>
+                <div class="form-field">
+                    <label for="message">TELL ME A LITTLE MORE</label>
+                    <InputTextArea id="message" @bind-Value="model.Message" rows="5" placeholder="The idea, the feeling, the details..." />
+                    <ValidationMessage For="@(() => model.Message)" />
+                </div>
+                <button class="button button-dark form-submit" type="submit">Send your note <span>↗</span></button>
+                <p class="form-disclaimer">Demo form only — messages aren't sent yet.</p>
+            </EditForm>
+        }
+    </div>
+</section>
+
+@code {
+    private ContactModel model = new();
+    private bool submitted;
+
+    private void HandleValidSubmit() => submitted = true;
+
+    private void ResetForm()
+    {
+        model = new ContactModel();
+        submitted = false;
+    }
+
+    private sealed class ContactModel
+    {
+        [Required(ErrorMessage = "Please enter your name.")]
+        public string Name { get; set; } = "";
+
+        [Required(ErrorMessage = "Please enter your email.")]
+        [EmailAddress(ErrorMessage = "Enter a valid email address.")]
+        public string Email { get; set; } = "";
+        [Required(ErrorMessage = "Please enter your phone number.")]
+        [Phone(ErrorMessage = "Enter a valid phone number.")]
+        public string Phone { get; set; } = "";
+        public string ProjectType { get; set; } = "";
+
+        [Required(ErrorMessage = "Please share a few details.")]
+        [MinLength(10, ErrorMessage = "Please enter at least 10 characters.")]
+        public string Message { get; set; } = "";
+    }
+}

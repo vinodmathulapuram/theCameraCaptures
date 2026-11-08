@@ -1,0 +1,14 @@
+<Router AppAssembly="@typeof(App).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(TheCameraCaptures.Components.MainLayout)" />
+        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+    </Found>
+    <NotFound>
+        <PageTitle>Not found — The Camera Captures</PageTitle>
+        <div class="not-found">
+            <p class="eyebrow">404 / WRONG TURN</p>
+            <h1>This frame<br /><em>isn't here.</em></h1>
+            <a class="button button-dark" href="/">Back to home ↗</a>
+        </div>
+    </NotFound>
+</Router>

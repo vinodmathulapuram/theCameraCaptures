@@ -1,0 +1,16 @@
+@using TheCameraCaptures.Models
+
+<article class="photo-card">
+    <a class="photo-link" href="/portfolio" aria-label="@($"Explore {Photo.Title} in the portfolio")">
+        <img src="@Photo.ImageUrl" alt="@Photo.AltText" loading="lazy" />
+        <span class="photo-overlay">
+            <span class="photo-category">@Photo.Category</span>
+            <span class="photo-title">@Photo.Title <span aria-hidden="true">↗</span></span>
+            <span class="photo-location">@Photo.Location</span>
+        </span>
+    </a>
+</article>
+
+@code {
+    [Parameter, EditorRequired] public Photo Photo { get; set; } = default!;
+}

@@ -1,0 +1,39 @@
+@page "/portfolio"
+@using TheCameraCaptures.Models
+
+<PageTitle>Portfolio — The Camera Captures</PageTitle>
+<MetaTags Description="Explore selected portrait, landscape, travel and cityscape photography." />
+
+<section class="page-hero portfolio-page-hero">
+    <p class="eyebrow"><span class="eyebrow-line"></span> THE VISUAL JOURNAL</p>
+    <h1>Collected<br /><em>moments.</em></h1>
+    <p>A little bit of everywhere, a little bit of everyone. Each frame holds a story.</p>
+    <div class="page-hero-index">SELECTED WORK / 2024—2026</div>
+</section>
+
+<section class="section portfolio-section">
+    <div class="filter-row" role="group" aria-label="Filter photographs">
+        @foreach (var category in Categories)
+        {
+            <button class="filter-button @(selectedCategory == category ? "active" : "")"
+                    @onclick="() => selectedCategory = category">
+                @category <span>@(category == "All" ? SamplePhotos.All.Count : SamplePhotos.All.Count(p => p.Category == category))</span>
+            </button>
+        }
+    </div>
+    <div class="photo-grid portfolio-grid">
+        @foreach (var photo in FilteredPhotos)
+        {
+            <PhotoCard Photo="photo" />
+        }
+    </div>
+    <p class="gallery-note">A living collection — more stories coming soon.</p>
+</section>
+
+@code {
+    private string selectedCategory = "All";
+    private readonly string[] Categories = ["All", "Portraits", "Landscapes", "Cityscapes", "Travel"];
+    private IEnumerable<Photo> FilteredPhotos => selectedCategory == "All"
+        ? SamplePhotos.All
+        : SamplePhotos.All.Where(p => p.Category == selectedCategory);
+}
