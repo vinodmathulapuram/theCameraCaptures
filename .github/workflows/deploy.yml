@@ -41,3 +41,4 @@ jobs:
       with:
         folder: release/wwwroot # The compiled static assets folder
         branch: gh-pages # Deploys files to a dedicated clean hosting branch
+        force: true
