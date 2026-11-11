@@ -1,0 +1,43 @@
+name: Deploy Blazor App to GitHub Pages
+
+on:
+  push:
+    branches: [ "main" ] # Triggers whenever you push to main
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x' # Change to '9.0.x' or your specific .NET version if different
+
+    - name: Publish Blazor Application
+      run: dotnet publish -c Release -o release
+
+    - name: Bypass Jekyll (Required for Blazor framework folders)
+      run: touch release/wwwroot/.nojekyll
+
+    - name: Fix Single Page Routing (Handles page refreshes)
+      run: cp release/wwwroot/index.html release/wwwroot/404.html
+
+    - name: Change Base Href (Required for repository subdirectories)
+      run: |
+        REPOSITORY_NAME=$(echo REPOSITORY_NAME_PLACEHOLDER | cut -d'/' -f2)
+        sed -i 's|<base href="/" />|<base href="/'"$GITHUB_REPOSITORY_ID"'/" />|g' release/wwwroot/index.html
+      env:
+        REPOSITORY_NAME_PLACEHOLDER: ${{ github.repository }}
+        GITHUB_REPOSITORY_ID: ${{ github.event.repository.name }}
+
+    - name: Deploy to GitHub Pages Branch
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        folder: release/wwwroot # The compiled static assets folder
+        branch: gh-pages # Deploys files to a dedicated clean hosting branch
