@@ -1,6 +1,6 @@
 # The Camera Captures — Blazor WebAssembly portfolio
 
-Photography portfolio by Vinod.
+Photography portfolio by Vinod updated.
 
 A creative, responsive multi-page photography portfolio built with .NET 10 Blazor WebAssembly.
 
