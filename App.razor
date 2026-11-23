@@ -1,4 +1,4 @@
-<Routes @renderMode="InteractiveWebAssembly" />
+@* <Routes @renderMode="InteractiveServer" /> *@
 <Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(TheCameraCaptures.Components.MainLayout)" />
@@ -13,3 +13,4 @@
         </div>
     </NotFound>
 </Router>
+    

@@ -1,39 +1,233 @@
 @page "/portfolio"
 @using TheCameraCaptures.Models
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@inject NavigationManager Navigation
 
 <PageTitle>Portfolio — The Camera Captures</PageTitle>
-<MetaTags Description="Explore selected portrait, landscape, travel and cityscape photography." />
+<MetaTags Description="Explore selected portrait, event, baby, landscape and cityscape photography." />
 
 <section class="page-hero portfolio-page-hero">
     <p class="eyebrow"><span class="eyebrow-line"></span> THE VISUAL JOURNAL</p>
-    <h1>Collected<br /><em>moments.</em></h1>
+    <h4>Collected<br /><em>moments.</em></h4>
     <p>A little bit of everywhere, a little bit of everyone. Each frame holds a story.</p>
     <div class="page-hero-index">SELECTED WORK / 2024—2026</div>
 </section>
 
-<section class="section portfolio-section">
-    <div class="filter-row" role="group" aria-label="Filter photographs">
-        @foreach (var category in Categories)
-        {
-            <button class="filter-button @(selectedCategory == category ? "active" : "")"
-                    @onclick="() => selectedCategory = category">
-                @category <span>@(category == "All" ? SamplePhotos.All.Count : SamplePhotos.All.Count(p => p.Category == category))</span>
-            </button>
-        }
+<div class="portfolio-page">
+    <div class="portfolio-heading">
+        <h1>My Portfolio</h1>
+        <p>Explore my photography collections</p>
     </div>
-    <div class="photo-grid portfolio-grid">
-        @foreach (var photo in FilteredPhotos)
+
+    @if (SelectedCategory is null)
+    {
+        <div class="portfolio-section-heading">
+            <p class="eyebrow">BROWSE BY COLLECTION</p>
+            <h2>Categories</h2>
+        </div>
+        <div class="portfolio-grid">
+            @foreach (var category in Categories)
+            {
+                var cover = SamplePhotos.All.FirstOrDefault(p => p.Category == category);
+                @if (cover is not null)
+                {
+                    <button type="button" class="album-card" @onclick="() => OpenCategory(category)">
+                        <img src="@cover.ImageUrl" alt="@category photography collection" loading="lazy" />
+                        <span class="album-card-shade"></span>
+                        <span class="album-info">
+                            <span class="album-kicker">COLLECTION</span>
+                            <strong>@category</strong>
+                            <span>@SamplePhotos.All.Count(p => p.Category == category) photographs <span aria-hidden="true">↗</span></span>
+                        </span>
+                    </button>
+                }
+            }
+        </div>
+    }
+    else if (SelectedSubcategory is null)
+    {
+        <button class="back-button" @onclick="BackToCategories">← All Categories</button>
+        <div class="portfolio-section-heading">
+            <p class="eyebrow">COLLECTION</p>
+            <h2>@SelectedCategory</h2>
+        </div>
+        <div class="portfolio-grid">
+            @foreach (var album in Albums)
+            {
+                var cover = SamplePhotos.All.FirstOrDefault(p => p.Category == SelectedCategory && p.Subcategory == album);
+                @if (cover is not null)
+                {
+                    <button type="button" class="album-card" @onclick="() => OpenAlbum(album)">
+                        <img src="@cover.ImageUrl" alt="@album" loading="lazy" />
+                        <span class="album-card-shade"></span>
+                        <span class="album-info">
+                            <span class="album-kicker">ALBUM</span>
+                            <strong>@album</strong>
+                            <span>@SamplePhotos.All.Count(p => p.Category == SelectedCategory && p.Subcategory == album) photographs <span aria-hidden="true">↗</span></span>
+                        </span>
+                    </button>
+                }
+            }
+        </div>
+    }
+    else
+    {
+        <button class="back-button" @onclick="BackToAlbums">← @SelectedCategory albums</button>
+        <div class="album-heading-row">
+            <div>
+                <p class="eyebrow">@SelectedCategory / PHOTO STORY</p>
+                <h2>@SelectedSubcategory</h2>
+                <p class="album-photo-count">@AlbumPhotosList.Count photographs</p>
+            </div>
+            <span class="album-index">THE CAMERA CAPTURES</span>
+        </div>
+
+        @if (AlbumPhotosList.Count == 0)
         {
-            <PhotoCard Photo="photo" />
+            <p class="gallery-empty">There are no photographs in this album yet.</p>
         }
-    </div>
-    <p class="gallery-note">A living collection — more stories coming soon.</p>
-</section>
+        else
+        {
+            <div class="photo-grid">
+                @for (var i = 0; i < AlbumPhotosList.Count; i++)
+                {
+                    var photo = AlbumPhotosList[i];
+                    var photoIndex = i;
+                    <button type="button" class="gallery-photo" @onclick="() => OpenLightbox(photoIndex)" aria-label="View @photo.Title">
+                        <img src="@photo.ImageUrl" alt="@photo.AltText" loading="lazy" />
+                        <span class="gallery-photo-overlay">
+                            <span>@photo.Title</span>
+                            <span>View photo ↗</span>
+                        </span>
+                    </button>
+                }
+            </div>
+        }
+
+        @if (IsLightboxOpen && CurrentPhoto is not null)
+        {
+            <div class="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer" tabindex="0" autofocus @onkeydown="HandleLightboxKey" @onclick="CloseLightbox">
+                <button type="button" class="lightbox-close" aria-label="Close photo viewer" @onclick="CloseLightbox" @onclick:stopPropagation="true">&times;</button>
+                @if (AlbumPhotosList.Count > 1)
+                {
+                    <button type="button" class="lightbox-nav lightbox-prev" aria-label="Previous photo" @onclick="PreviousPhoto" @onclick:stopPropagation="true">&#10094;</button>
+                }
+                <div class="lightbox-content" @onclick:stopPropagation="true">
+                    <img class="lightbox-image" src="@CurrentPhoto.ImageUrl" alt="@CurrentPhoto.AltText" />
+                    <div class="lightbox-caption">
+                        <h3>@CurrentPhoto.Title</h3>
+                        <p>@CurrentPhoto.Location</p>
+                        <span>@(CurrentPhotoIndex + 1) / @AlbumPhotosList.Count</span>
+                    </div>
+                    @if (AlbumPhotosList.Count > 1)
+                    {
+                        <div class="lightbox-thumbnails" aria-label="Choose a photograph">
+                            @for (var i = 0; i < AlbumPhotosList.Count; i++)
+                            {
+                                var thumbnailIndex = i;
+                                var thumbnail = AlbumPhotosList[i];
+                                <button type="button" class="lightbox-thumbnail @(i == CurrentPhotoIndex ? "active" : null)" aria-label="Show photo @(i + 1)" aria-current="@(i == CurrentPhotoIndex ? "true" : "false")" @onclick="() => GoToPhoto(thumbnailIndex)">
+                                    <img src="@thumbnail.ImageUrl" alt="" loading="lazy" />
+                                </button>
+                            }
+                        </div>
+                    }
+                </div>
+                @if (AlbumPhotosList.Count > 1)
+                {
+                    <button type="button" class="lightbox-nav lightbox-next" aria-label="Next photo" @onclick="NextPhoto" @onclick:stopPropagation="true">&#10095;</button>
+                    <img class="lightbox-preload" src="@NextPhotoToPreload?.ImageUrl" alt="" aria-hidden="true" />
+                }
+            </div>
+        }
+    }
+</div>
 
 @code {
-    private string selectedCategory = "All";
-    private readonly string[] Categories = ["All", "Portraits", "Landscapes", "Cityscapes", "Travel"];
-    private IEnumerable<Photo> FilteredPhotos => selectedCategory == "All"
-        ? SamplePhotos.All
-        : SamplePhotos.All.Where(p => p.Category == selectedCategory);
+    [SupplyParameterFromQuery(Name = "category")]
+    public string? CategoryQuery { get; set; }
+
+    [SupplyParameterFromQuery(Name = "album")]
+    public string? AlbumQuery { get; set; }
+
+    private string? SelectedCategory;
+    private string? SelectedSubcategory;
+    private bool IsLightboxOpen;
+    private int CurrentPhotoIndex;
+
+    private IEnumerable<string> Categories => SamplePhotos.All.Select(p => p.Category).Distinct().OrderBy(c => c);
+    private IEnumerable<string> Albums => SamplePhotos.All.Where(p => p.Category == SelectedCategory).Select(p => p.Subcategory).Distinct().OrderBy(a => a);
+    private List<Photo> AlbumPhotosList => SamplePhotos.All.Where(p => p.Category == SelectedCategory && p.Subcategory == SelectedSubcategory).ToList();
+    private Photo? CurrentPhoto => CurrentPhotoIndex >= 0 && CurrentPhotoIndex < AlbumPhotosList.Count ? AlbumPhotosList[CurrentPhotoIndex] : null;
+    private Photo? NextPhotoToPreload => AlbumPhotosList.Count > 1 ? AlbumPhotosList[(CurrentPhotoIndex + 1) % AlbumPhotosList.Count] : null;
+
+    protected override void OnParametersSet()
+    {
+        SelectedCategory = Categories.FirstOrDefault(c => string.Equals(c, CategoryQuery, StringComparison.OrdinalIgnoreCase));
+        SelectedSubcategory = SelectedCategory is null ? null : Albums.FirstOrDefault(a => string.Equals(a, AlbumQuery, StringComparison.OrdinalIgnoreCase));
+        if (SelectedCategory is null || SelectedSubcategory is null)
+            IsLightboxOpen = false;
+    }
+
+    private void OpenCategory(string category)
+    {
+        IsLightboxOpen = false;
+        Navigation.NavigateTo($"/portfolio?category={Uri.EscapeDataString(category)}");
+    }
+
+    private void OpenAlbum(string album)
+    {
+        IsLightboxOpen = false;
+        Navigation.NavigateTo($"/portfolio?category={Uri.EscapeDataString(SelectedCategory!)}&album={Uri.EscapeDataString(album)}");
+    }
+
+    private void BackToCategories()
+    {
+        IsLightboxOpen = false;
+        Navigation.NavigateTo("/portfolio");
+    }
+
+    private void BackToAlbums()
+    {
+        IsLightboxOpen = false;
+        Navigation.NavigateTo($"/portfolio?category={Uri.EscapeDataString(SelectedCategory!)}");
+    }
+
+    private void OpenLightbox(int index)
+    {
+        if (index < 0 || index >= AlbumPhotosList.Count) return;
+        CurrentPhotoIndex = index;
+        IsLightboxOpen = true;
+    }
+
+    private void CloseLightbox() => IsLightboxOpen = false;
+
+    private void GoToPhoto(int index)
+    {
+        if (index >= 0 && index < AlbumPhotosList.Count)
+            CurrentPhotoIndex = index;
+    }
+
+    private void NextPhoto()
+    {
+        if (AlbumPhotosList.Count > 1)
+            CurrentPhotoIndex = (CurrentPhotoIndex + 1) % AlbumPhotosList.Count;
+    }
+
+    private void PreviousPhoto()
+    {
+        if (AlbumPhotosList.Count > 1)
+            CurrentPhotoIndex = (CurrentPhotoIndex - 1 + AlbumPhotosList.Count) % AlbumPhotosList.Count;
+    }
+
+    private void HandleLightboxKey(KeyboardEventArgs e)
+    {
+        switch (e.Key)
+        {
+            case "ArrowRight": NextPhoto(); break;
+            case "ArrowLeft": PreviousPhoto(); break;
+            case "Escape": CloseLightbox(); break;
+        }
+    }
 }
