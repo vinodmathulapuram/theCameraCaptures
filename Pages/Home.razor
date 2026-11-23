@@ -17,7 +17,35 @@
     </div>
     <div class="hero-visual">
         <div class="hero-image-frame">
-            <img src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1600&q=90" alt="A quiet mountain lake reflecting the landscape" />
+            
+            @* <img src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1600&q=90" alt="A quiet mountain lake reflecting the landscape" /> *@
+        
+<div class="nature-carousel">
+
+    <img src="@NatureImages[currentNatureIndex]"
+         alt="Nature photography collection"
+         class="nature-image" />
+
+    <button class="nature-arrow nature-prev"
+            @onclick="PreviousNature"
+            aria-label="Previous photograph">
+        &lt;
+    </button>
+
+    <button class="nature-arrow nature-next"
+            @onclick="NextNature"
+            aria-label="Next photograph">
+        &gt;
+    </button>
+
+    <div class="nature-counter">
+        @(currentNatureIndex + 1) / @NatureImages.Length
+    </div>
+
+</div>
+
+
+
         </div>
         <div class="image-index"><span>01</span> / A WORLD IN FRAMES</div>
         <div class="hero-sticker">SEE<br />THE<br /><em>FEELING</em></div>
@@ -57,3 +85,55 @@
     <h2>Let’s make something<br /><em>worth keeping.</em></h2>
     <a class="button button-dark" href="/contact">Start a conversation <span>↗</span></a>
 </section>
+
+
+@code {
+    private int currentNatureIndex = 0;
+
+    private string[] NatureImages =
+    {
+        "Images/Nature/photo1.jpeg",
+        "Images/Nature/photo2.jpeg",
+        "Images/Nature/photo3.jpeg",
+        "Images/Nature/photo4.jpeg",
+        "Images/Nature/photo5.jpeg",
+         "Images/Nature/photo6.jpeg",
+        "Images/Nature/photo7.jpeg",
+        "Images/Nature/photo8.jpeg",
+        "Images/Nature/photo9.jpeg",
+        "Images/Nature/photo10.jpeg",
+        "Images/Nature/photo11.jpeg",
+        "Images/Nature/photo12.jpeg",
+        "Images/Nature/photo13.jpeg",
+        "Images/Nature/photo14.jpeg",
+        "Images/Nature/photo15.jpeg",
+         "Images/Nature/photo16.jpeg",
+        "Images/Nature/photo17.jpeg",
+        "Images/Nature/photo18.jpeg",
+        "Images/Nature/photo9.jpeg",
+        "Images/Nature/photo20.jpeg",
+        "Images/Nature/photo21.jpeg",
+        "Images/Nature/photo22.jpeg",
+        "Images/Nature/photo23.jpeg",
+        "Images/Nature/photo24.jpeg",
+        "Images/Nature/photo25.jpeg",
+         "Images/Nature/photo26.jpeg",
+        "Images/Nature/photo27.jpeg",
+        "Images/Nature/photo28.jpeg",
+        "Images/Nature/photo29.jpeg",
+
+    };
+
+    private void NextNature()
+    {
+        currentNatureIndex =
+            (currentNatureIndex + 1) % NatureImages.Length;
+    }
+
+    private void PreviousNature()
+    {
+        currentNatureIndex =
+            (currentNatureIndex - 1 + NatureImages.Length)
+            % NatureImages.Length;
+    }
+}
