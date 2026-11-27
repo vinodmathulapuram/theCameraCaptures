@@ -103,15 +103,16 @@ new("HemaRamana's Wedding", "Events", "HemaRamana's Wedding", "Kentucky",
             "/Images/Baby/Anvi/photo5.jpeg", "Baby portrait"),
 
             new("Tejas", "Portraits", "Tejas", "New Jersey",
-            "/Images/Portraits/Tejas/photo1.jpeg", "Tejas portrait")
+            "/Images/Portraits/Tejas/photo1.jpeg", "Tejas portrait"),
+            new("Tejas", "Portraits", "Tejas", "New Jersey",
+            "/Images/Portraits/Tejas/photo2.jpg", "Tejas portrait"),
+            new("Tejas", "Portraits", "Tejas", "New Jersey",
+            "/Images/Portraits/Tejas/photo3.jpg", "Tejas portrait"),
+            new("Tejas", "Portraits", "Tejas", "New Jersey",
+            "/Images/Portraits/Tejas/photo4.jpg", "Tejas portrait")
+            // ,
             // new("Tejas", "Portraits", "Tejas", "New Jersey",
-            // "/Images/Portraits/Tejas/photo2.jpg", "Tejas portrait"),
-            // new("Tejas", "Portraits", "Tejas", "New Jersey",
-            // "/Images/Portraits/Tejas/photo3.jpg", "Tejas portrait"),
-            // new("Tejas", "Portraits", "Tejas", "New Jersey",
-            // "/Images/Portraits/Tejas/photo4.jpg", "Tejas portrait"),
-            // new("Tejas", "Portraits", "Tejas", "New Jersey",
-            // "/Images/Portraits/Tejas/photo5.jpg", "Tejas portrait"),
+            //  "/Images/Portraits/Tejas/photo5.jpg", "Tejas portrait")
             // new("Tejas", "Portraits", "Tejas", "New Jersey",
             // "/Images/Portraits/Tejas/photo6.jpg", "Tejas portrait")
 
